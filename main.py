@@ -11,6 +11,7 @@ writeReturnLine = False
 functionsNames = []
 returnedFunctions = []
 possibleFunctionName = ""
+mainFuncFound = False
 for line in lines:  # read file line by line
     for word in line.split(" "):  # read line word by word
         if "(" in word:  # if a '(' is found in the word
@@ -22,11 +23,17 @@ for line in lines:  # read file line by line
                 writeReturnLine = True
         if newFunctionName:  # if it's an indicator that a new function name could be found
             if "(" in word:  # if it contains parenthesis, then it's a function
-                functionsNames.append(word.split("(")[0] + "(")   # add function name to the list
+                funcName = word.split("(")[0]
+                if funcName == "main":
+                    mainFuncFound = True
+                functionsNames.append(funcName + "(")   # add function name to the list
             newFunctionName = False
         if word in returnedTypes:  # if a return type was found, it could be a function
             newFunctionName = True
     outputFile.write(line)  # write the original line
+    if mainFuncFound:
+        outputFile.write("freopen(\"log_output.txt\",\"w\",stdout);\n")
+        mainFuncFound = False
     outputFile.writelines(returnedFunctions)  # write the returned functions logs
     returnedFunctions = []
 
