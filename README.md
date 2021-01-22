@@ -32,6 +32,18 @@ Output example:
     int x=f0();
     cout << "x=f0 returned" << endl;
 As `x=f0` will be considered a new function instead of `f0` only  
+
+No brackets in a single line if-condition or for-loop
+
+    if(condition)
+        f1();
+
+Output example:
+
+    if(condition)
+        f1();
+    cout << "f1 returned" << endl;
+    
 ##**_Corrections_**
 First case:
 
@@ -45,6 +57,12 @@ Second Case:
         return 5;
     }
 
-Last Case:
+Third Case:
 
     int x = f0();
+
+Last Case:
+
+    if(condition) {
+        f1();
+    }
