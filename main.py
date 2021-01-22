@@ -1,4 +1,7 @@
 import os
+
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 from anytree import Node
 from anytree import find as find_node
 from anytree.exporter import UniqueDotExporter
@@ -112,9 +115,15 @@ for ancestor in most_frequent_path.ancestors:
 Node(most_frequent_path.name, parent=main_path_node)
 UniqueDotExporter(main_path_node.root).to_picture("most_frequent_path.png")
 
-print(most_frequent_sub_path)
 main_sub_path_node = Node(most_frequent_sub_path.parent.name)
 Node(most_frequent_sub_path.name, parent=main_sub_path_node)
 UniqueDotExporter(main_sub_path_node.root).to_picture("most_frequent_sub_path.png")
+
+f, axarr = plt.subplots(2, 2)
+axarr[0][0].imshow(mpimg.imread('dynamic.png'))
+axarr[0][1].imshow(mpimg.imread('context.png'))
+axarr[1][0].imshow(mpimg.imread('most_frequent_path.png'))
+axarr[1][1].imshow(mpimg.imread('most_frequent_sub_path.png'))
+plt.show()
 
 log_output_file.close()
