@@ -1,4 +1,6 @@
 import os
+from anytree import Node
+from anytree.exporter import UniqueDotExporter
 
 file = open('code.txt', 'r')
 outputFile = open('output.cpp', 'w')
@@ -43,3 +45,21 @@ if os.system('g++ output.cpp -o output.out') == 0:
     os.system("./output.out")
 else:
     print("Unable to compile and run output file")
+
+
+log_output_file = open("log_output.txt", "r")  # open log output file
+lines = log_output_file.readlines()  # read the lines generated
+main_node = Node("main")  # add main function as it's the starting point
+stack_trace = [main_node]  # add it to the stacktrace to know which function is executing
+for line in lines:  # loop over lines
+    func_name = line.split(" ")[0]  # get function name
+    func_type = line.split(" ")[1]  # get type (called or returned)
+    if func_type.strip() == 'called':  # if it's called, then a new node needs to be created
+        new_node = Node(func_name, parent=stack_trace[-1])  # create new node with the right parent
+        stack_trace.append(new_node)  # add the node to the top of the stacktrace
+    else:  # the function returned
+        stack_trace.pop()  # pop the top most function
+
+# visualize the main_node (root) of the tree
+UniqueDotExporter(main_node).to_picture("pictures_output/dynamic_calling.png")
+log_output_file.close()

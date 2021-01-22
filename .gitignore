@@ -3,3 +3,4 @@ output.cpp
 venv
 *.png
 log_output.txt
+pictures_output
