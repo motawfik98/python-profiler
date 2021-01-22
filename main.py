@@ -83,25 +83,38 @@ for line in lines:  # loop over lines
 most_frequent_path = None
 frequent_path_count = 0
 
+most_frequent_sub_path = None
+frequent_sub_path_count = 0
+
 
 def edge_attr_func(node, child):
     global frequent_path_count
+    global frequent_sub_path_count
+    global most_frequent_path
+    global most_frequent_sub_path
     if child.is_leaf:
         if child.occurrences > frequent_path_count:
             frequent_path_count = child.occurrences
-            global most_frequent_path
             most_frequent_path = child
-
+    if child.occurrences > frequent_sub_path_count:
+        frequent_sub_path_count = child.occurrences
+        most_frequent_sub_path = child
     return 'label="x%d"' % child.occurrences
 
 
 # visualize the main_node (root) of the tree
 UniqueDotExporter(main_dynamic_node).to_picture("pictures_output/dynamic.png")
 UniqueDotExporter(main_context_node, edgeattrfunc=edge_attr_func).to_picture("pictures_output/context.png")
-main_node = None
+main_path_node = None
 for ancestor in most_frequent_path.ancestors:
-    main_node = Node(ancestor.name, parent=main_node)
+    main_path_node = Node(ancestor.name, parent=main_path_node)
 
-Node(most_frequent_path.name, parent=main_node)
-UniqueDotExporter(main_node.root).to_picture("pictures_output/most_frequent_path.png")
+Node(most_frequent_path.name, parent=main_path_node)
+UniqueDotExporter(main_path_node.root).to_picture("pictures_output/most_frequent_path.png")
+
+print(most_frequent_sub_path)
+main_sub_path_node = Node(most_frequent_sub_path.parent.name)
+Node(most_frequent_sub_path.name, parent=main_sub_path_node)
+UniqueDotExporter(main_sub_path_node.root).to_picture("pictures_output/most_frequent_sub_path.png")
+
 log_output_file.close()

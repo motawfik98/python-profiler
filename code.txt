@@ -1,34 +1,32 @@
 #include<iostream>
 using namespace std;
 
-int f2(int i) {
-    return i + 2;
+void E() {
+
 }
 
-int f1(int i) {
-    int x = f2(2) ;
-    return x + i + 1;
+void C() {
+
 }
 
-int f0(int i) {
-    int x = f1(1);
-    int y = f2(2);
-    return x + y;
+
+void B(bool call_c, bool call_e) {
+    if (call_c) {
+        C();
+    }
+    if (call_e) {
+        E();
+    }
 }
 
-int pointed(int i) {
-    return i;
-}
-
-int not_called(int i) {
-    return 0;
+void D() {
+    B(false, false);
 }
 
 int main(int argc, char **argv) {
-    f0(1);
-    f1(1);
-    if (argc == 2) {
-        not_called(1);
-    }
+    B(true, true);
+    C();
+    B(false, true);
+    D();
     return 0;
 }
