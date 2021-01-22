@@ -1,5 +1,6 @@
 import os
 from anytree import Node
+from anytree import find as find_node
 from anytree.exporter import UniqueDotExporter
 
 file = open('code.txt', 'r')
@@ -46,20 +47,41 @@ if os.system('g++ output.cpp -o output.out') == 0:
 else:
     print("Unable to compile and run output file")
 
-
 log_output_file = open("log_output.txt", "r")  # open log output file
 lines = log_output_file.readlines()  # read the lines generated
-main_node = Node("main")  # add main function as it's the starting point
-stack_trace = [main_node]  # add it to the stacktrace to know which function is executing
+main_dynamic_node = Node("main", occurrences=0)  # add main function as it's the starting point (for dynamic tree)
+main_context_node = Node("main", occurrences=0)  # add main function as it's the starting point (for context tree)
+dynamic_stack_trace = [main_dynamic_node]  # add it to the stacktrace to know which function is executing
+context_stack_trace = [main_context_node]  # add it to the stacktrace to know which function is executing
+
 for line in lines:  # loop over lines
     func_name = line.split(" ")[0]  # get function name
     func_type = line.split(" ")[1]  # get type (called or returned)
     if func_type.strip() == 'called':  # if it's called, then a new node needs to be created
-        new_node = Node(func_name, parent=stack_trace[-1])  # create new node with the right parent
-        stack_trace.append(new_node)  # add the node to the top of the stacktrace
+        dynamic_node = Node(func_name, parent=dynamic_stack_trace[-1],
+                            occurrences=1)  # create new node with the right parent
+        dynamic_stack_trace.append(dynamic_node)  # add the node to the top of the stacktrace
+        # gets the full path of the current node
+        path = str(dynamic_node.path[-1])[
+               str(dynamic_node.path[-1]).index("(") + 1: str(dynamic_node.path[-1]).index(",")]
+        # find the node with the same path
+        same_node = find_node(main_context_node, lambda node: str(node.path[-1])[
+                                                              str(node.path[-1]).index("(") + 1: str(
+                                                                  node.path[-1]).index(",")] == path)
+        if same_node is not None:  # if a node with the same path has been found
+            same_node.occurrences += 1  # increment the number of occurrences of the node
+            context_stack_trace.append(same_node)  # add the node to the top of the stack
+        else:  # new node to be added
+            context_node = Node(func_name, parent=context_stack_trace[-1],
+                                occurrences=1)  # create new node with the right parent
+            context_stack_trace.append(context_node)
+
     else:  # the function returned
-        stack_trace.pop()  # pop the top most function
+        dynamic_stack_trace.pop()  # pop the top most function
+        context_stack_trace.pop()  # pop the top most function
 
 # visualize the main_node (root) of the tree
-UniqueDotExporter(main_node).to_picture("pictures_output/dynamic_calling.png")
+UniqueDotExporter(main_dynamic_node).to_picture("pictures_output/dynamic.png")
+UniqueDotExporter(main_context_node, edgeattrfunc=lambda node, child:
+                  'label="x%d"' % child.occurrences).to_picture("pictures_output/context.png")
 log_output_file.close()
